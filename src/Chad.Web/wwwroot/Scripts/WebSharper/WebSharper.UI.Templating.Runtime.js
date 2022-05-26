@@ -211,6 +211,17 @@
  {
   Obj.New.call(this);
  },TemplateInstances);
+ Handler.AfterRenderQ2$203$42=function(key,f)
+ {
+  return function(el)
+  {
+   f({
+    Vars:TemplateInstances.GetInstance(key),
+    Target:el,
+    Event:null
+   });
+  };
+ };
  Handler.EventQ2$189$36=function(key,f)
  {
   return function(el)
@@ -282,6 +293,21 @@
    $:0,
    $0:allVars
   }];
+ };
+ Handler.AfterRenderQ2=function(key,holeName,ti,f)
+ {
+  return{
+   $:7,
+   $0:holeName,
+   $1:function(el)
+   {
+    f({
+     Vars:ti(),
+     Target:el,
+     Event:null
+    });
+   }
+  };
  };
  Handler.EventQ2=function(key,holeName,ti,f)
  {

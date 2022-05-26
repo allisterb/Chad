@@ -2918,7 +2918,7 @@
    wje=WritingJournlEntry.New("l",Date.now(),writingPrompt,text,triples,lemmas,entities,behaviouralTraits,emotionalTraits);
    Concurrency.Start((b$2=null,Concurrency.Delay(function()
    {
-    return Concurrency.Bind((new AjaxRemotingProvider.New()).Async("Chad.Web:Chad.Web.Server.addWritingJournalEntry:-1568810325",[wje]),function(a$30)
+    return Concurrency.Bind((new AjaxRemotingProvider.New()).Async("Chad.Web:Chad.Web.Server.addWritingJournalEntry:948476581",[wje]),function(a$30)
     {
      return a$30.$==1?Concurrency.Zero():Concurrency.Zero();
     });
@@ -2931,7 +2931,7 @@
    return Concurrency.Delay(function()
    {
     add("journalentry_text",e);
-    return Concurrency.Bind((new AjaxRemotingProvider.New()).Async("Chad.Web:Chad.Web.Server.getTriples:-1944127067",[e]),function(a$30)
+    return Concurrency.Bind((new AjaxRemotingProvider.New()).Async("Chad.Web:Chad.Web.Server.getTriples:604286546",[e]),function(a$30)
     {
      var triples;
      return a$30.$==1?Concurrency.Return({
@@ -2958,7 +2958,7 @@
       return Concurrency.Zero();
      }),Concurrency.Delay(function()
      {
-      return Concurrency.Bind((new AjaxRemotingProvider.New()).Async("Chad.Web:Chad.Web.Server.getMainLemmas:1561070991",[e]),function(a$31)
+      return Concurrency.Bind((new AjaxRemotingProvider.New()).Async("Chad.Web:Chad.Web.Server.getMainLemmas:254363423",[e]),function(a$31)
       {
        var e$1,lemmas;
        return a$31.$==1?(e$1=a$31.$0,(Journal.debug(e$1),Concurrency.Return({
@@ -2990,7 +2990,7 @@
          return Concurrency.Zero();
         }),Concurrency.Delay(function()
         {
-         return Concurrency.Bind((new AjaxRemotingProvider.New()).Async("Chad.Web:Chad.Web.Server.getEntities:1336929759",[e]),function(a$32)
+         return Concurrency.Bind((new AjaxRemotingProvider.New()).Async("Chad.Web:Chad.Web.Server.getEntities:-1414011567",[e]),function(a$32)
          {
           var e$2,entities;
           return a$32.$==1?(e$2=a$32.$0,(Journal.debug(e$2),Concurrency.Return({
@@ -3022,7 +3022,7 @@
             return Concurrency.Zero();
            }),Concurrency.Delay(function()
            {
-            return Concurrency.Bind((new AjaxRemotingProvider.New()).Async("Chad.Web:Chad.Web.Server.getEmotionalTraits:1144606186",[e]),function(a$33)
+            return Concurrency.Bind((new AjaxRemotingProvider.New()).Async("Chad.Web:Chad.Web.Server.getEmotionalTraits:1894919880",[e]),function(a$33)
             {
              var e$3,t$1;
              return a$33.$==1?(e$3=a$33.$0,(Journal.debug(e$3),Concurrency.Return({
@@ -3054,7 +3054,7 @@
                return Concurrency.Zero();
               }),Concurrency.Delay(function()
               {
-               return Concurrency.Bind((new AjaxRemotingProvider.New()).Async("Chad.Web:Chad.Web.Server.getBehavioralTraits:143906032",[e]),function(a$34)
+               return Concurrency.Bind((new AjaxRemotingProvider.New()).Async("Chad.Web:Chad.Web.Server.getBehavioralTraits:-153359710",[e]),function(a$34)
                {
                 var e$4,t$2;
                 return a$34.$==1?(e$4=a$34.$0,(Journal.debug(e$4),Concurrency.Return({
@@ -3900,7 +3900,7 @@
   List.ofArray(["Perceived Deficits Questionnaire","Paced Auditory Serial Test","Single Digit Modality Test"]);
   List.ofArray(["Beck's Depression Inventory"]);
   sdmtCharacters=List.ofArray(["\u2540","\u2560","\u2599","\u25ae","\u25b3","\u25c9","\u25e0","\u25f0","\u2593"]);
-  accountTypes=(new AjaxRemotingProvider.New()).Sync("Chad.Web:Chad.Web.GnuCash.getaccountTypes:191403912",[]);
+  accountTypes=(new AjaxRemotingProvider.New()).Sync("Chad.Web:Chad.Web.GnuCash.getaccountTypes:426057875",[]);
   m=DialogueModule.frame(d.$4);
   if(m.$==1&&(a=Intent$2("query_txns",m.$0),a!=null&&a.$==1&&(a$1=NLU$1.Entity1OfAny("account_name",a.$0[1]),a$1!=null&&a$1.$==1&&(m.$1.$==0&&(a$1.$0.get_Value()==="checking account"&&($1=a$1.$0,true))))))
    (handle("query_txns"))(function()
@@ -3933,7 +3933,7 @@
     if(have("accountType"))
      remove("accountType");
     add("accountType",at);
-    accts=(new AjaxRemotingProvider.New()).Sync("Chad.Web:Chad.Web.GnuCash.getAccountsByCategory:-1597567259",[at]);
+    accts=(new AjaxRemotingProvider.New()).Sync("Chad.Web:Chad.Web.GnuCash.getAccountsByCategory:928482710",[at]);
     if(have("accounts"))
      remove("accounts");
     add("accounts",accts);
@@ -4458,7 +4458,7 @@
    sayRandom(NLG.waitRetrievePhrases(),"user name");
    Concurrency.Start((b$1=null,Concurrency.Delay(function()
    {
-    return Concurrency.Bind((new AjaxRemotingProvider.New()).Async("Chad.Web:Chad.Web.Server.getUser:-76328254",[u]),function(a$22)
+    return Concurrency.Bind((new AjaxRemotingProvider.New()).Async("Chad.Web:Chad.Web.Server.getUser:1440988159",[u]),function(a$22)
     {
      var user;
      return a$22==null?(say((function($8)
@@ -4494,12 +4494,12 @@
         };
        }(Global.id))(u));
       }
-     })),Concurrency.Zero()):(user=a$22.$0,Concurrency.Bind((new AjaxRemotingProvider.New()).Async("Chad.Web:Chad.Web.Server.updateUserLastLogin:-1317056317",[user.Name]),function()
+     })),Concurrency.Zero()):(user=a$22.$0,Concurrency.Bind((new AjaxRemotingProvider.New()).Async("Chad.Web:Chad.Web.Server.updateUserLastLogin:-278775852",[user.Name]),function()
      {
       sayRandom(NLG.helloUserPhrases(),user.Name);
       say("You have 2 new messages.");
       add("user",u);
-      return Concurrency.Combine(user.LastLoggedIn!=null?Concurrency.Bind((new AjaxRemotingProvider.New()).Async("Chad.Web:Chad.Web.Server.humanize:1458658896",[user.LastLoggedIn.$0]),function(a$23)
+      return Concurrency.Combine(user.LastLoggedIn!=null?Concurrency.Bind((new AjaxRemotingProvider.New()).Async("Chad.Web:Chad.Web.Server.humanize:-359853309",[user.LastLoggedIn.$0]),function(a$23)
       {
        say((function($8)
        {
@@ -4575,7 +4575,7 @@
    Concurrency.Start((b$1=null,Concurrency.Delay(function()
    {
     sayRandom(NLG.waitAddPhrases(),"user");
-    return Concurrency.Bind((new AjaxRemotingProvider.New()).Async("Chad.Web:Chad.Web.Server.addUser:-117804465",[u]),function(a$22)
+    return Concurrency.Bind((new AjaxRemotingProvider.New()).Async("Chad.Web:Chad.Web.Server.addUser:-1045813033",[u]),function(a$22)
     {
      return a$22.$==1?(ClientExtensions.error((((Runtime.Curried3(function($8,$9,$10)
      {
@@ -4641,7 +4641,7 @@
     addUser($4);
    }):m.$==1&&(a$14=DialogueModule.Intent_(d,"greet",m.$0),a$14!=null&&a$14.$==1&&(a$14.$0[0]==null&&(a$15=NLU$1.Entity1Of1("name",a$14.$0[1]),a$15!=null&&a$15.$==1&&(m.$1.$==0&&($5=a$15.$0,true)))))?Concurrency.Start((b=null,Concurrency.Delay(function()
    {
-    return Concurrency.Bind((new AjaxRemotingProvider.New()).Async("Chad.Web:Chad.Web.Server.getUser:-76328254",[$5.get_Value()]),function(a$22)
+    return Concurrency.Bind((new AjaxRemotingProvider.New()).Async("Chad.Web:Chad.Web.Server.getUser:1440988159",[$5.get_Value()]),function(a$22)
     {
      return a$22==null?(say((function($8)
      {
@@ -5237,7 +5237,7 @@
           }
           Client.CUI().Wait((b=null,Concurrency.Delay(function()
           {
-           return Concurrency.Bind((new AjaxRemotingProvider.New()).Async("Chad.Web:Chad.Web.GnuCash.getAcccounts:414750164",[]),function(a$13)
+           return Concurrency.Bind((new AjaxRemotingProvider.New()).Async("Chad.Web:Chad.Web.GnuCash.getAcccounts:-1212601436",[]),function(a$13)
            {
             return a$13==null?Concurrency.Zero():(Client.debug((function($4)
             {
@@ -5257,7 +5257,7 @@
           a=Text.DebugEntities(command);
           a!=null&&a.$==1?(e$1=a.$0,Client.CUI().Wait((b$1=null,Concurrency.Delay(function()
           {
-           return Concurrency.Bind((new AjaxRemotingProvider.New()).Async("Chad.Web:Chad.Web.Server.getEntities:1336929759",[e$1]),function(a$13)
+           return Concurrency.Bind((new AjaxRemotingProvider.New()).Async("Chad.Web:Chad.Web.Server.getEntities:-1414011567",[e$1]),function(a$13)
            {
             var entities;
             return a$13.$==1?(Client.debug(a$13.$0),Concurrency.Zero()):(entities=a$13.$0,Concurrency.Combine(Concurrency.For(entities,function(a$14)
@@ -5288,7 +5288,7 @@
            });
           })))):(a$1=Text.DebugLemmas(command),a$1!=null&&a$1.$==1?(e$2=a$1.$0,Client.CUI().Wait((b$2=null,Concurrency.Delay(function()
           {
-           return Concurrency.Bind((new AjaxRemotingProvider.New()).Async("Chad.Web:Chad.Web.Server.getMainLemmas:1561070991",[e$2]),function(a$13)
+           return Concurrency.Bind((new AjaxRemotingProvider.New()).Async("Chad.Web:Chad.Web.Server.getMainLemmas:254363423",[e$2]),function(a$13)
            {
             var lemmas;
             return a$13.$==1?(Client.debug(a$13.$0),Concurrency.Zero()):(lemmas=a$13.$0,Concurrency.Combine(Concurrency.For(lemmas,function(a$14)
@@ -5319,7 +5319,7 @@
            });
           })))):(a$2=Text.DebugTriples(command),a$2!=null&&a$2.$==1?(dt=a$2.$0,Client.CUI().Wait((b$3=null,Concurrency.Delay(function()
           {
-           return Concurrency.Bind((new AjaxRemotingProvider.New()).Async("Chad.Web:Chad.Web.Server.getTriples:-1944127067",[dt]),function(a$13)
+           return Concurrency.Bind((new AjaxRemotingProvider.New()).Async("Chad.Web:Chad.Web.Server.getTriples:604286546",[dt]),function(a$13)
            {
             var c;
             return a$13.$==1?(Client.debug(a$13.$0),Concurrency.Zero()):(c=a$13.$0,Concurrency.Combine(Concurrency.For(c,function(a$14)
@@ -5356,7 +5356,7 @@
            });
           })))):(a$3=Text.DebugEmotionalTraits(command),a$3!=null&&a$3.$==1?(et=a$3.$0,Client.CUI().Wait((b$4=null,Concurrency.Delay(function()
           {
-           return Concurrency.Bind((new AjaxRemotingProvider.New()).Async("Chad.Web:Chad.Web.Server.getEmotionalTraits:1144606186",[et]),function(a$13)
+           return Concurrency.Bind((new AjaxRemotingProvider.New()).Async("Chad.Web:Chad.Web.Server.getEmotionalTraits:1894919880",[et]),function(a$13)
            {
             var t;
             return a$13.$==1?(Client.debug(a$13.$0),Concurrency.Zero()):(t=a$13.$0,Concurrency.Combine(Concurrency.For(t,function(a$14)
@@ -5387,7 +5387,7 @@
            });
           })))):(a$4=Text.DebugBehavioralTraits(command),a$4!=null&&a$4.$==1?(bt=a$4.$0,Client.CUI().Wait((b$5=null,Concurrency.Delay(function()
           {
-           return Concurrency.Bind((new AjaxRemotingProvider.New()).Async("Chad.Web:Chad.Web.Server.getBehavioralTraits:143906032",[bt]),function(a$13)
+           return Concurrency.Bind((new AjaxRemotingProvider.New()).Async("Chad.Web:Chad.Web.Server.getBehavioralTraits:-153359710",[bt]),function(a$13)
            {
             var t;
             return a$13.$==1?(Client.debug(a$13.$0),Concurrency.Zero()):(t=a$13.$0,Concurrency.Combine(Concurrency.For(t,function(a$14)
