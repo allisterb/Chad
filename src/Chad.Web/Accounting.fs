@@ -1,0 +1,447 @@
+namespace Chad.Web
+
+open System.Collections.Generic
+
+open WebSharper
+open WebSharper.UI
+open WebSharper.JavaScript
+open WebSharper.UI.Html
+open WebSharper.JQuery
+open Chad.Models
+open Chad.NLU
+
+[<JavaScript>]
+module Accounting =
+    let name = "Accounting"
+    let debug m = ClientExtensions.debug name m
+    
+    /// Update the dialogue state
+    let rec update d =        
+        Dialogue.debugInterpreterStart d debug name
+
+        let (Dialogue.Dialogue(cui, props, dialogueQuestions, output, utterances)) = d
+        
+        let echo = Dialogue.echo d
+        let print = echo
+        let say' = Dialogue.say' d
+        let say = Dialogue.say d
+        let doc = cui.EchoDoc
+        let sayRandom = Dialogue.sayRandom d
+        let sayRandom' = Dialogue.sayRandom' d
+
+        (* Manage the dialogue state elements*)
+        let have = Dialogue.have d 
+        let prop k  = Dialogue.prop d k
+        let add k v = Dialogue.add d debug k v
+        let remove = Dialogue.remove d debug
+
+        let pushu = Dialogue.pushu d debug
+        let pushq = Dialogue.pushq d debug
+        let popu() = Dialogue.popu d debug
+        let popq() = Dialogue.popq d debug
+        
+        let dispatch = Dialogue.dispatch d debug
+        let handle = Dialogue.handle d debug
+        let trigger = Dialogue.trigger d debug update
+        let trigger' = Dialogue.trigger' d debug update
+        let cancel = Dialogue.cancel d debug
+        let endt = Dialogue.endt d debug
+        let endt' = Dialogue.endt' d debug
+        let didNotUnderstand() = Dialogue.didNotUnderstand d debug name
+
+        let ask = Questions.ask d debug
+        let menu = Questions.menu d "Tests"
+
+        (* Base dialogue patterns *)
+        let (|Agenda|_|) = Dialogue.(|Agenda_|_|) d
+        let (|PropSet|_|) = Dialogue.(|PropSet_|_|) d
+        let (|PropNotSet|_|) = Dialogue.(|PropNotSet_|_|) d
+        let (|User|_|) = Dialogue.(|User_|_|) d
+        let (|User'|_|) = Dialogue.(|User'_|_|) d
+        let (|Intent|_|) = Dialogue.(|Intent_|_|) d
+        let (|Response|_|) = Dialogue.(|Response_|_|) d
+        let (|Response'|_|) = Dialogue.(|Response'_|_|) d
+       
+        let user():User = prop "user"
+        let triggerJournal = Dialogue.trigger d debug Journal.update
+          
+        let showMainMenu() =
+            doc <| Doc.Concat [
+                Bs.btnPrimary "accounts" (fun _ _ -> trigger "list_account_types" "list_account_types")
+                Html.text "     "
+                Bs.btnPrimary "transactions" (fun _ _ -> trigger "list_test_categories" "list_test_categories")
+                Html.text "     "
+                Bs.btnPrimary "budgets" (fun _ _ -> triggerJournal "symptom_journal" "symptom_journal")
+                Html.text "     "
+                Bs.btnPrimary "reports" (fun _ _ -> triggerJournal "mood_journal" "mood_journal")
+                Html.text "     "
+                Bs.btnPrimary "caregiver" (fun _ _ -> triggerJournal "caregiver_journal" "caregiver_journal")
+                Html.text "     "
+                Bs.btnSecondary "settings" (fun _ _ -> trigger "list_settings_categories" "list_settings_categories")
+                Html.text "     "
+                Bs.btnInfo "help" (fun _ _ -> trigger "help" "help")
+            ]
+        let showAccount name desc = 
+            doc <| div [cls "jumbotron"] [
+                h1 [cls "display-4"] [text name]
+                p [cls "lead"] [text desc]
+                hr [cls "my-4"] []
+                Bs.btnPrimary "balance" (fun _ _ -> trigger "account_balance" "account_balance")
+                Html.text "     "
+                Bs.btnPrimary "journal" (fun _ _ -> trigger "account_journal" "account_journal")
+                Html.text "     "
+                Bs.btnPrimary "transactions" (fun _ _ -> trigger "account_transactions" "account_transactions")
+            ]
+
+        let testCategories = ["Physical Health Tests"; "Mental Health Tests"; "Cognitive Tests"; "Psychological Tests"]
+        
+        let physicalHealthTests = ["Bladder Control Scale"; "Bowel Control Scale"; "Modified Fatigue Impact Scale"; "MOS Pain Effects Scale"; "Sexual Satisfaction Scale"]
+        let mentalHealthTests = ["Mental Health Inventory"; "Modified Social Support Survey"]
+        let cognitiveTests = ["Perceived Deficits Questionnaire"; "Paced Auditory Serial Test"; "Single Digit Modality Test"]
+        let psychologicalTests = ["Beck's Depression Inventory"]
+        
+        let pasatTestInstructions = "You are going to hear a seriesof single digit numbers that will be presented at the rate of one every 3 seconds. 
+                                     Listen for the first two numbers, add them up, and tell me your answer. 
+                                     When you hear the next number, add it to the one you heard right before it. 
+                                     Continue to add the next number to each preceding one. Remember you are not being asked to give me a running total, but rather the sum of the last two numbers that you heard."
+
+        let sdmtTestInstructions = "You will see a sequence of 9 symbols. Using the symbol-digit key that you see displayed here, enter the 9 digits that match the symbol according to the key."
+        let sdmtCharacters = ["\u2540"; "\u2560"; "\u2599"; "\u25AE"; "\u25B3"; "\u25C9"; "\u25E0"; "\u25F0"; "\u2593"]
+        
+       
+        
+        let accountTypes = GnuCash.getaccountTypes()
+
+        (* Interpreter logic begins here *)
+
+        match Dialogue.frame utterances with        
+        
+        | Intent "query_txns" (_, Entity1OfAny "account_name" an)::[] when an.Value = "checking account" -> 
+            handle "query_txns" (fun _ -> 
+                
+                cui.EchoHtml' 
+                    """
+                        1.
+                        Date: 10/17/2021
+                        Description: Salary
+                        From: Income:Salary
+                        Deposit: $4000
+                        <hr>
+                        2.
+                        Date: 10/17/2021
+                        Description: Interest
+                        From: Income:Checking Interest
+                        Deposit: $4000
+                        <hr>
+                        3.
+                        Date: 10/21/2021
+                        Description: Dentist
+                        To: Expenses:Medical
+                        Deposit: $200
+                        <hr>
+                        4.
+                        Date: 10/24/2021
+                        Description: 
+                        To: Expenses:Pets
+                        Deposit: $56
+                    """
+                say
+                    """
+                        Here are the last 10 transactions for Bank:Checking Account.
+                        1.
+                        Date: 10/17/2021
+                        Description: Salary
+                        From: Income:Salary
+                        Deposit: $4000
+                        2.
+                        Date: 10/17/2021
+                        Description: Interest
+                        From: Income:Checking Interest
+                        Deposit: $4000
+                        3.
+                        Date: 10/21/2021
+                        Description: Dentist
+                        To: Expenses:Medical
+                        Deposit: $200
+                        4.
+                        Date: 10/24/2021
+                        Description: 
+                        To: Expenses:Pets
+                        Deposit: $56
+                    """
+            )
+
+        | Intent "create_budget" (_, _)::[]  -> 
+            handle "create_budget" (fun _ -> 
+                say "Ok I added a weekly budget of $50 to Expenses:Pets."
+
+                echo "Ok I added a weekly budget of $50 to Expenses:Pets."
+            )
+
+        | Intent "create_txn" (_, EntityManyOf1 "account_name" an)::[]  -> 
+            handle "create_txn" (fun _ -> 
+                say "Ok I added a withdrawal to Expenses:Pets of $56 from Bank:Checking Account on 10/24/2021."
+                echo "Ok I added a withdrawal to Expenses:Pets of $56 from Bank:Checking Account on 10/24/2021."
+                say "You've exceeded the weekly budget of $50 you set for this account."
+                cui.EchoHtml' "<span color:'purple'>You've exceeded the weekly budget of $50 you set for this account.</span>"
+            )
+
+        | Intent "create_account" (_, Entity1OfAny "account_name" an)::[] when an.Value = "pets" -> 
+            handle "create_account" (fun _ -> 
+                
+                say "OK I created an expense account called Pets"
+                showAccount "Pets" ""
+                
+            )
+
+        | Intent "accounts" _::[] -> 
+            handle "accounts" (fun _ -> 
+                ask <| menu "menuAccountTypes" accountTypes "These are the kinds of accounts that are available. Choose one of the account types from the list." trigger   
+            )
+
+        | Response "menuAccountTypes" (Number n,_,_)::[] -> 
+            endt "menuAccountTypes" (fun _ -> 
+                
+                let at = accountTypes.[n - 1]
+                if have "accountType" then remove "accountType"
+                add "accountType" at
+                let accts = GnuCash.getAccountsByCategory at
+                if have "accounts" then remove "accounts"
+                add "accounts" accts
+                ask <| menu "menuAccounts" (accts |> List.map(fun a -> a.Name)) "Choose an account from the list. Click on the account name or enter the number of the account." trigger
+            )
+        | Response "menuAccountTypes" (Intent "cancel" _,_,_)::[] -> 
+            endt "menuAccountTypes" (fun _ -> showMainMenu()
+            )
+            
+        | Response "menuAccounts" (Number n,_,_)::[] -> 
+            endt "menuAccounts" (fun _ -> 
+                let accts:Account list = prop "accounts"
+                let acct = accts.[n - 1]
+                debug <| sprintf "Selected %s." acct.Name
+                add "account" acct.Name
+                doc <| div [cls "jumbotron"] [
+                    h1 [cls "display-4"] [text acct.Name]
+                    p [cls "lead"] [text acct.Description]
+                    hr [cls "my-4"] []
+                    Bs.btnPrimary "balance" (fun _ _ -> trigger "account_balance" "account_balance")
+                    Html.text "     "
+                    Bs.btnPrimary "journal" (fun _ _ -> trigger "account_journal" "account_journal")
+                    Html.text "     "
+                    Bs.btnPrimary "transactions" (fun _ _ -> trigger "account_transactions" "account_transactions")
+                ]
+            )
+        | Response "menuAccounts" (Intent "cancel" _,_,_)::[] -> 
+            endt "menuAccounts" (fun _ ->
+           
+                ask <| menu "menuAccountTypes" accountTypes "These are the kinds of accounts that are available. Choose one of the account types from the list." trigger 
+
+            )
+        | Intent "account_balance"  _ ::[] ->
+            handle "account_balance" (fun _ ->
+                let acctName:string = prop "account"
+                let accts: Account list = prop "accounts"
+                let acct = accts |> List.find(fun a -> a.Name = acctName)
+                match acctName with
+                | "Checking Account" -> 
+                    say "The balance on your Checking Account is $3900."
+                    echo "The balance on your Checking Account is $3900."
+                | _ -> ()
+            
+            )
+
+        | Intent "create_balance"  _ ::[] ->
+            handle "account_balance" (fun _ ->
+                let acctName:string = prop "account"
+                let accts: Account list = prop "accounts"
+                let acct = accts |> List.find(fun a -> a.Name = acctName)
+                match acctName with
+                | "Checking Account" -> 
+                    say "The balance on your Checking Account is $3900."
+                    echo "The balance on your Checking Account is $3900."
+                | _ -> ()
+            
+            )
+
+        | Response "menuPhysicalHealthTests" (Intent "cancel" _,_,_)::[] 
+        | Response "menuMentalHealthTests" (Intent "cancel" _,_,_)::[]
+        | Response "menuCognitiveTests" (Intent "cancel" _,_,_)::[]
+        | Response "menuPsychologicalTests" (Intent "cancel" _,_,_)::[] -> 
+            endt' (fun _ ->
+                ask <| menu "menuTestCategories" testCategories "Choose one of the test categories from the list." trigger
+            )
+
+        | Response "menuCognitiveTests" (Number n,_,_)::[] -> 
+            endt "menuCognitiveTests" (fun _ -> 
+                match n with
+                | 2 -> 
+                    doc <| Html.text "    "
+                    say "You last took this test Monday. You're scheduled to take this test agan this week."
+                    echo "The Paced Auditory Serial Addition Test (PASAT) is a measure of cognitive function that
+                          specifically assesses auditory information processing speed and flexibility, as well as calculation ability."
+                    doc <| Doc.Concat [
+                        Html.text "     "
+                        Bs.btnPrimary "start" (fun _ _ -> trigger "start_test_pasat" "start_test_pasat")
+                        Html.text "     "
+                        Bs.btnInfo "about" (fun _ _ -> trigger "about_test_pasat" "about_test_pasat")
+                        Html.text "     "
+                        Bs.btnDark "my history" (fun _ _ -> trigger "history_test_pasat" "history_test_pasat")
+                        Html.text "     "
+                        Bs.btnSecondary "cancel" (fun _ _ -> trigger "cancel" "cancel")
+                    ]
+                | 3 -> 
+                    doc <| Html.text "    "
+                    say "You last took this test Monday. You're scheduled to take this test agan this week."
+                    echo "The Single Digit Modalities Test (SDMT) is a measure of cognitive function that
+                          specifically assesses information processing speed and episodic memory."
+                    doc <| Html.text "     "
+                    doc <| Doc.Concat [
+                        Bs.btnPrimary "start" (fun _ _ -> trigger "start_test_sdmt" "start_test_sdmt")
+                        Html.text "     "
+                        Bs.btnInfo "about" (fun _ _ -> trigger "about_test_sdmt" "about_test_sdmt")
+                        Html.text "     "
+                        Bs.btnDark "my history" (fun _ _ -> trigger "history_test_sdmt" "history_test_sdmt")
+                        Html.text "     "
+                        Bs.btnSecondary "cancel" (fun _ _ -> trigger "cancel" "cancel")
+                    ]
+                | _ -> say "Choose a cognitive test from the list."
+            )
+        | Intent "start_test_pasat" _::[] -> 
+            handle "start_test_pasat" (fun _ ->
+                say pasatTestInstructions
+                echo "Listen to the instructions and click the Yes button when ready."
+                ask <| Question("verify_start_test_pasat", name, Verification ((fun _ -> trigger "verify" "yes"), (fun _ -> trigger "reject" "no")), None, fun _ -> 
+                    say "Are you ready to begin?";echo "Are you ready to begin?") 
+            )
+        
+        | Yes(Response "verify_start_test_pasat"(_,_,_))::[] -> 
+            JQuery("#testprofile").RemoveClass("invisible") |> ignore 
+            JQuery("#testprofile-name").Text("PASAT") |>ignore
+            JQueryPieProgress.enable (JS.Document.GetElementById("#testprofile-timer")) ({ns= "pie_progress"; Goal=0; First=120;Min=0; Max=120; Speed=1200;Easing="linear";NumberCallback = Defined (fun n -> 
+            let minutes = int <| System.Math.Floor(float (JS.this?now) / 60.);
+            let seconds = int <| JS.this?now % 60.;
+            let min = (string) minutes
+            let sec = if (seconds > 10) then (string) seconds else "0" + (string) seconds
+            min + ": " + sec
+            )})
+
+            JQueryPieProgress.start (JS.Document.GetElementById("#testprofile-timer"))
+            
+        | Intent "start_test_sdmt" _::[] -> 
+            handle "start_test_sdmt" (fun _ ->
+                say sdmtTestInstructions
+                echo "Listen to the instructions and click the Yes button when ready."
+                doc <| text "    "
+                ask <| Question("verify_start_test_sdmt", name, Verification ((fun _ -> trigger "verify" "yes"), (fun _ -> trigger "reject" "no")), None, fun _ -> 
+                    ()) 
+            )
+        
+        | Yes(Response "verify_start_test_sdmt"(_,_,_))::[] -> 
+            endt "verify_start_test_sdmt" (fun _ ->
+                add "testentry" true
+                if JQuery("#testprofile").HasClass("invisible") then
+                    JQuery("#testprofile").RemoveClass("invisible").AddClass("visible") |> ignore 
+            
+                doc <| table [cls "table table-bordered"] [
+                    thead[] [tr [] (sdmtCharacters |> List.map(fun c -> th [Attr.Create "scope" "col"; attr.style "font-size:300%;text-align:center"] [text c]))]
+                    tbody[] [tr [] (sdmtCharacters |> List.mapi(fun i _ -> td [attr.style "font-size:300%;text-align:center"] [text <| string (i + 1)]))]
+                ]
+                JQueryPieProgress.enable (JS.Document.GetElementById("pp1")) ({ns= "pie_progress"; Goal=0; First=90;Min=0; Max=90; Speed=900;Easing="linear";NumberCallback = Defined (fun n -> 
+                let minutes = int <| System.Math.Floor(float (JS.this?now) / 60.);
+                let seconds = int <| JS.this?now % 60.;
+                let min = (string) minutes
+                let sec = if (seconds > 10) then (string) seconds else "0" + (string) seconds
+                min + ": " + sec
+                )})
+                say "You have 90 seconds to complete this round."
+                echo "Round 1"
+                doc <| table [cls "table table-bordered"] [
+                    thead[] [tr [] (sdmtCharacters |> List.toArray |> shuffleArray |> Array.map(fun c -> th [Attr.Create "scope" "col"; attr.style "font-size:300%;text-align:center"] [text c]))]
+                ]
+                doc <| Doc.Concat [
+                    Html.text "    "
+                    Bs.btnWarning "1" (fun _ _ -> trigger "r_test_sdmt" "r_test_sdmt" )
+                    Html.text "    "
+                    Bs.btnWarning "2" (fun _ _ -> trigger "r_test_sdmt" "r_test_sdmt" )
+                    Html.text "    "
+                    Bs.btnWarning "3" (fun _ _ -> trigger "r_test_sdmt" "r_test_sdmt" )
+                    Html.text "    "
+                    Bs.btnWarning "4" (fun _ _ -> trigger "r_test_sdmt" "r_test_sdmt" )
+                    Html.text "    "
+                    Bs.btnWarning "5" (fun _ _ -> trigger "r_test_sdmt" "r_test_sdmt" )
+                    Html.text "    "
+                    Bs.btnWarning "6" (fun _ _ -> trigger "r_test_sdmt" "r_test_sdmt" )
+                    Html.text "    "
+                    Bs.btnWarning "7" (fun _ _ -> trigger "r_test_sdmt" "r_test_sdmt" )
+                    Html.text "    "
+                    Bs.btnWarning "8" (fun _ _ -> trigger "r_test_sdmt" "r_test_sdmt" )
+                    Html.text "    "
+                    Bs.btnWarning "9" (fun _ _ -> trigger "r_test_sdmt" "r_test_sdmt" )
+                    Html.text "    "
+                    Bs.btnSuccess "next" (fun _ _ -> trigger "next_test_sdmt" "next_test_sdmt" )
+                    Html.text "    "
+                    Bs.btnDanger "stop" (fun _ _ -> trigger "stop_test_sdmt" "stop_test_sdmt" )
+                ]
+                JQueryPieProgress.start (JS.Document.GetElementById("pp1"))
+                say "Enter the 9 digits corresponding to the symbols shown."
+            )
+        | Intent "r_test_sdmt" _::[] ->
+            popu()
+            echo "Round 2"
+            JQuery("#testprofile-round").Text "Round 2" |> ignore
+            doc <| table [cls "table table-bordered"] [
+                thead[] [tr [] (sdmtCharacters |> List.toArray |> shuffleArray |> Array.map(fun c -> th [Attr.Create "scope" "col"; attr.style "font-size:300%;text-align:center"] [text c]))]
+            ]
+            doc <| Doc.Concat [
+                Html.text "    "
+                Bs.btnWarning "1" (fun _ _ -> trigger "r_test_sdmt" "r_test_sdmt" )
+                Html.text "    "
+                Bs.btnWarning "2" (fun _ _ -> trigger "r_test_sdmt" "r_test_sdmt" )
+                Html.text "    "
+                Bs.btnWarning "3" (fun _ _ -> trigger "r_test_sdmt" "r_test_sdmt" )
+                Html.text "    "
+                Bs.btnWarning "4" (fun _ _ -> trigger "r_test_sdmt" "r_test_sdmt" )
+                Html.text "    "
+                Bs.btnWarning "5" (fun _ _ -> trigger "r_test_sdmt" "r_test_sdmt" )
+                Html.text "    "
+                Bs.btnWarning "6" (fun _ _ -> trigger "r_test_sdmt" "r_test_sdmt" )
+                Html.text "    "
+                Bs.btnWarning "7" (fun _ _ -> trigger "r_test_sdmt" "r_test_sdmt" )
+                Html.text "    "
+                Bs.btnWarning "8" (fun _ _ -> trigger "r_test_sdmt" "r_test_sdmt" )
+                Html.text "    "
+                Bs.btnWarning "9" (fun _ _ -> trigger "r_test_sdmt" "r_test_sdmt" )
+                Html.text "    "
+                Bs.btnSuccess "next" (fun _ _ -> trigger "next_test_sdmt" "next_test_sdmt" )
+                Html.text "    "
+                Bs.btnDanger "stop" (fun _ _ -> trigger "stop_test_sdmt" "stop_test_sdmt" )
+            ]
+            say "Enter the 9 digits corresponding to the symbols shown."
+
+        | Intent "stop_test_sdmt" _::[] ->
+            popu()
+            JQueryPieProgress.stop (JS.Document.GetElementById("pp1"))
+            //if JQuery("#testprofile").HasClass("invisible") then
+            //    JQuery("#testprofile").RemoveClass("invisible").AddClass("visible") |> ignore
+            doc <| Doc.Concat [
+                Bs.btnPrimary "knowledge" (fun _ _ -> trigger "list_kb_categories" "list_kb_categories")
+                Html.text "     "
+                Bs.btnPrimary "tests" (fun _ _ -> trigger "list_test_categories" "list_test_categories")
+                Html.text "     "
+                Bs.btnPrimary "symptoms" (fun _ _ -> triggerJournal "symptom_journal" "symptom_journal")
+                Html.text "     "
+                Bs.btnPrimary "mood" (fun _ _ -> triggerJournal "mood_journal" "mood_journal")
+                Html.text "     "
+                Bs.btnPrimary "caregiver" (fun _ _ -> triggerJournal "caregiver_journal" "caregiver_journal")
+                Html.text "     "
+                Bs.btnSecondary "settings" (fun _ _ -> trigger "list_settings_categories" "list_settings_categories")
+                Html.text "     "
+                Bs.btnInfo "help" (fun _ _ -> trigger "help" "help")
+            ]
+            
+        | Intent "query" _::[]
+        | Intent "medication_journal" _::[] -> Journal.update d
+
+        | _ -> didNotUnderstand()
+
+        Dialogue.debugInterpreterEnd d debug name
